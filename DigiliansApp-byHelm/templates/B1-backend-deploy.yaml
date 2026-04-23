@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.backend.name }}-deploy
+  labels:
+    app: {{ .Values.backend.app }}
+spec:
+  replicas: {{ .Values.backend.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.backend.app }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.backend.app }}
+    spec:
+      containers:
+        - name: {{ .Values.backend.name }}-pod
+          image: {{ .Values.backend.image }}
+          ports:
+            - containerPort: {{ .Values.backend.port }}
+          env:
+          {{- range $key, $value := .Values.backend.backendEnv }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+          {{- end }}
+          envFrom:
+            - secretRef:
+                name: {{ .Values.backendSecret.name }}

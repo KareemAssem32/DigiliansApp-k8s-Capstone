@@ -1,0 +1,95 @@
+#==================================
+#  Values for the ingress resource
+#==================================
+ingress:
+  name: app-ingress
+  frontend:
+    host: digilians-app.com
+    path: /
+    pathType: Prefix
+    service:
+      name: frontend
+      port: 80
+
+  backend:
+    host: api.digilians-app.com
+    path: /
+    pathType: Prefix
+    service:
+      name: backend
+      port: 8000
+#=================================================
+#  Values for the frontend deployment and service
+#=================================================
+frontend: 
+  name: frontend
+  app: test 
+  replicas: 2
+  image: kareem32/app-test:frontend
+  port: 80
+
+frontendService:
+  svc_name: frontend
+  app: test
+  protocol: TCP
+  port: 80
+  targetPort: 80
+
+frontendEnv:
+    BACKEND_URL: "http://backend:8000"
+#=================================================
+#  Values for the backend deployment and service
+#=================================================
+backend: 
+  name: backend
+  app: backend
+  replicas: 2
+  image: kareem32/app-test:backend
+  port: 8000
+
+backendService:
+  svc_name: backend
+  app: backend
+  protocol: TCP
+  port: 8000
+  targetPort: 8000
+
+backendEnv:
+    DB_HOST: db
+    DB_PORT: 5432
+    DB_NAME: postgres
+    DB_USER: admin
+    DB_PASSWORD: ZXV3ZXN0Cg==
+
+backendSecret:
+    name: db-secret
+    key: POSTGRES_PASSWORD
+
+#==========================
+#  Values for the database
+#==========================
+postgres:
+  name: postgres
+  image: postgres:15
+  replicas: 1
+
+  service:
+    name: db
+    port: 5432
+
+  db: learning_platform
+  user: admin
+  # Storage size for the database volume
+  volume:
+    name: postgres-storage
+    storage: 1Gi
+    mountPath: /var/lib/postgresql/data
+    accessModes: ["ReadWriteOnce"]
+
+
+  secret:
+    name: db-secret
+    type: Opaque
+    dbKey: POSTGRES_DB
+    userKey: POSTGRES_USER
+    passwordKey: POSTGRES_PASSWORD
